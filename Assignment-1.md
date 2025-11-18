@@ -1,0 +1,126 @@
+Assignment 1
+================
+Group 3
+2025-11-18
+
+## Libraries
+
+``` r
+library(ggplot2)
+library(RColorBrewer)
+library(scales)
+```
+
+## 1
+
+``` r
+#Read in Table
+cases <- read.table("cases-1.tsv")
+
+#Need to turn first row into headers
+colnames(cases) <- cases[1, ]
+cases <- cases[-1, ]
+```
+
+``` r
+#Clean Up Data Frame Column Types
+
+cases$agegroup <- factor(
+  cases$agegroup,
+  levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89"),
+  ordered = TRUE
+)
+
+cases$sex <- factor(cases$sex)
+cases$year <- as.numeric(cases$year)
+cases$n <- as.numeric(cases$n)
+```
+
+``` r
+#Graph showing the number of cases by age group and sex.
+ggplot(cases, aes(x = agegroup, y = n, fill = sex)) +
+  geom_col() +
+  facet_wrap(~ sex) +
+  theme_minimal() +
+  labs(
+    title = "Number of Colon Cancer Cases by Age Group",
+    fill = "Sex",
+    x = "Age Group",
+    y = "Number of Cases"
+  ) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+```
+
+![](Assignment-1_files/figure-gfm/unnamed-chunk-4-1.png)<!-- --> \## 2
+
+``` r
+#Obtain the total number of cases in each calendar year by males and females
+cases_by_year <- aggregate(n ~ year + sex, data = cases, sum)
+
+#Create graphs showing the number of cases over calendar years, separately for males and females
+ggplot(cases_by_year, aes(x = year, y = n, color = sex)) +
+  geom_line() +
+  geom_point() +
+  labs(
+    title = "Number of Cases over Calendar Years",
+    color = "Sex",
+    x = "Year",
+    y = "Cases") +
+  theme_minimal()
+```
+
+![](Assignment-1_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+## 3
+
+``` r
+#Read in the table
+population <- read.table("population-1.tsv")
+
+#Need to turn first row into headers
+colnames(population) <- population[1, ]
+population <- population[-1, ]
+```
+
+``` r
+#Clean up the Dataframe
+population$agegroup <- factor(
+  population$agegroup,
+  levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89"),
+  ordered = TRUE
+)
+
+population$sex <- factor(population$sex)
+population$year <- as.numeric(population$year)
+population$n_pop <- as.numeric(population$n_pop)
+```
+
+``` r
+#Create graphs that illustrate the population size over age groups and calendar year simultaneously, separately by males and females.
+
+ggplot(population, aes(x = year, y = n_pop, color = agegroup)) +
+  geom_line() +
+  #geom_point() +
+  facet_wrap(~ sex, ncol = 1) +
+  scale_y_continuous(labels = label_number(scale = 1e-3,)) +
+  labs(
+    title = "Swedish Population by Year and Age Group",
+    color = "Age Group",
+    x = "Year",
+    y = "Population (In Thousands)") +
+  theme_minimal()
+```
+
+![](Assignment-1_files/figure-gfm/unnamed-chunk-8-1.png)<!-- --> \## 4
+
+``` r
+#Merge the information on number of cases and the number of persons at risk in each year, for each age group and sex. Does the population file include the same age groups and calendar years as the file including the number of cases
+
+merged_df <- merge(cases, population, by = c("agegroup", "year", "sex"))
+
+#Also create a separate data frame with the total number of cases and the total population size in each calendar year by males and females.
+
+cases_sum <- aggregate(n ~ year + sex, data = merged_df, sum)
+population_sum <- aggregate(n_pop ~ year + sex, data = merged_df, sum)
+summary_df <- merge(cases_sum, population_sum, by = c("year", "sex"))
+```
