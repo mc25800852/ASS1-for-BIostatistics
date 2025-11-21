@@ -1,17 +1,18 @@
 ---
 title: "Biostatistics 1 - Assignment 1"
-author: "Group 3: 
-William Fleury Dziuk, Galya Gadzhalova, Chen Ma, Afroditi-Iliana Zotou"
-output: github_document
+author: "Group 3: William Fleury Dziuk, Galya Gadzhalova, Chen Ma, Afroditi-Iliana
+  Zotou"
 date: "`r Sys.Date()`"
-editor_options: 
-  markdown: 
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  markdown:
     wrap: 72
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,warning = FALSE)
-
 ```
 
 ## Introduction
@@ -56,7 +57,9 @@ cases <- cases[-1, ]
 
 cases$agegroup <- factor(
   cases$agegroup,
-  levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80-84", "85-89"),
+  levels = c("0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34",
+             "35-39", "40-44", "45-49", "50-54", "55-59", "60-64", "65-69",
+             "70-74", "75-79", "80-84", "85-89"),
   ordered = TRUE
 )
 
@@ -81,7 +84,7 @@ ggplot(cases, aes(x = agegroup, y = n, fill = sex)) +
     
 ```
 
-In our data set we have the following variables:
+In our the file cases.tsv we have the following variables:
 
 \begin{itemize}
 \item Age group: Intervals of 5‑years (0–4, 5–9, …, 85–89).
@@ -126,7 +129,7 @@ ggplot(cases_by_year, aes(x = year, y = n, color = sex)) +
 **Task:** Read in the file on number of persons at risk (the file
 population.tsv). Make sure that you understand the variables included.
 Create graphs that illustrate the population size over age groups and
-calendar year si multaneously, separately by males and females.
+calendar year simultaneously, separately by males and females.
 
 **Answer:**
 
@@ -160,7 +163,6 @@ population$n_pop <- as.numeric(population$n_pop)
 
 ggplot(population, aes(x = year, y = n_pop, color = agegroup)) +
   geom_line() +
-  #geom_point() +
   facet_wrap(~ sex, ncol = 1) +
   scale_y_continuous(labels = label_number(scale = 1e-3,)) +
   labs(
@@ -170,6 +172,19 @@ ggplot(population, aes(x = year, y = n_pop, color = agegroup)) +
     y = "Population (In Thousands)") +
   theme_minimal()
 ```
+
+In our file population.tsv we have the following variables:
+
+\begin{itemize} 
+\item Age group: Intervals of 5‑years (0–4, 5–9, …, 85–89).
+
+\item Sex: Male and female categories.
+
+\item Year: Numeric variable of the calendar year of the observation.
+
+\item Number of persons at risk ($n_pop$): The number of individuals in each age group, sex, and year. This represents the population at risk and will be used as the denominator for rate calculations. 
+
+\end{itemize}
 
 ## 4
 
@@ -208,7 +223,7 @@ calculating an incidence rate.
 $\text{Incidence Rate} = \frac{\text{Number of new colon cancer cases}}{\text{Population size}}$
 
 We also calculated the rate per 1.000 person-years to easier interpret
-the results.
+the results. We were motivated to so from similar questions at the recommended exercises. 
 
 $\text{Incidence Rate per }1.000=1.000 \times \frac{\text{Number of new colon cancer cases}}{\text{Population size}}$
 
@@ -247,9 +262,10 @@ the population at risk. However, our definition is a simplified version
 of the formal one, since we assumed the population size to be an
 approximation for person-time In our case, the exact person-time is not
 available and we can also consider that the population does not
-dramatically change over the year. Hence, we can conclude that this is
-this is a valid way of calculating an incidence rate where detailed
-follow‑up is not available.
+dramatically change over the year. Hence, we can conclude that this is a
+valid way of calculating an incidence rate where detailed follow‑up is
+not available.
+
 
 ## 6
 
@@ -278,7 +294,7 @@ ggplot(summary_df, aes(x = year, y = Incidencerate_per1000, color = sex)) +
 From the above graph, we notice that the Incidence Rate is steadily
 increasing over time for both males and females and it almost doubles in
 the span of 50 years. This implies that the diagnosis of colon cancer
-became more common and accessible over the decades.Additionally, the
+became more common and accessible over the decades. Additionally, the
 Incidence rates are consistently higher for males meaning that for the
 same age period, men have a higher chance of being diagnosed with colon
 cancer than females. This means that the trends are similar for both
@@ -287,7 +303,7 @@ smoother, the curved line, it clearly shows a long-term upward trend by
 ignoring minor fluctuations.
 
 Confidence bands, as shown by the shaded areas, are relatively narrow,
-indicating a statistically robust trend. In a more practical
+indicating a statistically important trend. In a more practical
 perspective, we can interpret that there have been major improvements in
 screening and diagnosing colon cancer over the past decades and
 awareness has been raised encouraging testing especially for men.
@@ -318,7 +334,7 @@ $$
 ```{r}
 # Fit Poisson Regression Model
 poisson_model <- glm(
-  n ~ year + sex,                  # independent variables
+  n ~ year + sex,                 # independent variables
   offset = log(n_pop),            # log of population size as offset
   family = poisson(link = "log"), # Poisson model
   data = summary_df
@@ -348,26 +364,12 @@ coded as 1 for males and 0 for females.
 The value $\beta_0 = -29.69$ represents the baseline log incidence rate
 for females in year 0.
 
-While year 0 is not meaningful directly, this intercept anchors the
-model.
-
-The value $\beta_1 = 0.01094$ means that for each additional calendar
-year, the log incidence rate increases by 0.01094. The relative
-exponential value $e^{0.01094} \approx 1.011$ means that the incidence
-rate increases by approximately $1.1\%$ per year when considering sex
-constant.
-
-The value $\beta_2 = -0.05592$ suggests that males have a lower log
-incidence rate than females. The relative exponential value
-$e^{-0.05592} \approx 0.9456$ means that the incidence rate for males is
-about 5.4% lower than for females.
-
 As for the statistical significance, we see that all coefficients have
 very small p-values ($< 2 \times 10^{-16}$), indicating strong
 statistical significance. We can reject the null hypothesis that year
 and sex have no effect on incidence rate.
 
-The differnece between the Null and the Residual deviance suggests that
+The difference between the Null and the Residual deviance suggests that
 the model explains well the variation in the data. The value AIC is also
 relatively low which is also an indicator for a good model fit.
 
@@ -379,24 +381,22 @@ cancer incidence rates in Sweden have increased steadily over time and
 that females have slightly higher rates than males when adjusted for
 population size.
 
-
 ## 8
 
-**Task description:**
-Based on the model output from above, what is the incidence rate in 1970
-among males and females? Based on the model output from above, what is
-the incidence rate in 2020 among males and females? What assumptions
-have you made regarding how the incidence rate changes over calendar
-years and what the difference is between males and females?
+**Task:** Based on the model output from above, what is the incidence
+rate in 1970 among males and females? Based on the model output from
+above, what is the incidence rate in 2020 among males and females? What
+assumptions have you made regarding how the incidence rate changes over
+calendar years and what the difference is between males and females?
 
 **Answer:**
 
-Using the fitted Poisson model in Task 7, the incidence rate is given by:
+Using the fitted Poisson model in Task 7, the incidence rate is given
+by:
 
-\[
+$$
 \log(IR) = \beta_0 + \beta_1 \cdot \text{year} + \beta_2 \cdot \text{sex}
-\]
-
+$$
 
 Therefore, the following calculations can be made:
 
@@ -404,109 +404,106 @@ Therefore, the following calculations can be made:
 
 Females (sex = 0):
 
-\[
+$$
 \log(IR) = -29.69 + 0.01094 \cdot 1970
-\]
+$$
 
-\[
+$$
 \log(IR) = -8.142
-\]
+$$
 
-\[
+$$
 IR_{\text{female, 1970}} = e^{-8.142} = 0.00029
-\]
+$$
 
 Per 1,000:
 
-\[
+$$
 IR_{\text{female, 1970}} \times 1000 \approx 0.29
-\]
+$$
 
 Males (sex = 1):
 
-
-\[
+$$
 \log(IR) = -29.69 + 0.01094 \cdot 1970 - 0.05592
-\]
+$$
 
 then,
 
-\[
+$$
 \log(IR) =  -8.198
-\]
+$$
 
-\[
+$$
 IR_{\text{male, 1970}} = e^{-8.198} = 0.000274
-\]
+$$
 
 Per 1,000:
 
-\[
+$$
 IR_{\text{male, 1970}} \times 1000 \approx 0.274
-\]
+$$
 
-
-Similarly, the incidence rate for the year 2020 is calculated, with the only 
-change being that the term \(\beta_1 \cdot 1970\) has been replaced with
-\(\beta_1 \cdot 2020\).
+Similarly, the incidence rate for the year 2020 is calculated, with the
+only change being that the term $\beta_1 \cdot 1970$ has been replaced
+with $\beta_1 \cdot 2020$.
 
 A summary table of the model-based incidence rates (per 1,000
-person-years) is presented below: 
+person-years) is presented below:
 
-| Year | Sex     | Incidence Rate (per 1,000) |
-|------|---------|-----------------------------|
-| 1970 | Female  | 0.29                        |
-| 1970 | Male    | 0.27                        |
-| 2020 | Female  | 0.52                        |
-| 2020 | Male    | 0.49                        |
+| Year | Sex    | Incidence Rate (per 1,000) |
+|------|--------|----------------------------|
+| 1970 | Female | 0.29                       |
+| 1970 | Male   | 0.27                       |
+| 2020 | Female | 0.52                       |
+| 2020 | Male   | 0.49                       |
 
+These results indicate that the model predicts a steady increase in
+incidence over time for both sexes between 1970 and 2020.
 
-These results indicate that the model predicts a steady increase in incidence
-over time for both sexes between 1970 and 2020.
+The following assumptions could be made based on the model:
 
-The following assumptions could be made based on the model: 
+-   The coefficient for calendar year is $\beta_1 = 0.01094$. When it is
+    normalized, $e^{0.01094} \approx 1.011$, it could be concluded that
+    the incidence rate increases by about 1.1% per year. So the model
+    assumes a steady and constant yearly increase in incidence over
+    time.
 
-- The coefficient for calendar year is \(\beta_1 = 0.01094\). When it is normalized,
-\(e^{0.01094} \approx 1.011\), it could be concluded that the incidence rate
-increases by about 1.1% per year. So the model assumes a steady and constant
-yearly increase in incidence over time.
+-   In the model the variable sex is a binary variable which takes
+    values 0 or 1. So we assume that the relative difference between
+    males and females is constant across the person years.
 
-- In the model the variable sex is a binary variable which takes values 0 or 1.
-So we assume that the relative difference between males and females is constant 
-across the person years.
-
-Intrepretation: 
+Intrepretation:
 
 The coefficient infront the sex variable is:
 
-\[
+$$
 \beta_2 = -0.05592
-\]
+$$
 
 Then, the value should be normalised, when the exponential is calculated
 
-\[
+$$
 e^{-0.05592} \approx 0.9456
-\]
+$$
 
-This value (0.9456) represents the ratio of the male incidence rate to the female 
-incidence rate.
+This value (0.9456) represents the ratio of the male incidence rate to
+the female incidence rate.
 
 To find the percentage difference, we subtract 1:
 
-\[
+$$
 0.9456 - 1 = -0.0544
-\]
+$$
 
 Which means that males have about 5.4% lower incidence than females.
 
+## 9
 
-## 9 
+**Task:**
 
-**Task description:**
-
-Create a graph of incidence rates over calendar year by sex and age group,
-and apply smoothers, what can you conclude?
+Create a graph of incidence rates over calendar year by sex and age
+group, and apply smoothers, what can you conclude?
 
 **Answer:**
 
@@ -544,7 +541,6 @@ y = "Incidence Rate (per 1,000 person-years)",
 color = "Age Group")
 ```
 
-
 ```{r}
 #One combined graph of incidence rates over time. The dashed line is for males
 #and the continuous line is for females.
@@ -562,49 +558,55 @@ linetype = "Sex"
 
 ```
 
-
 **Interpretation of the results:**
 
-Across both groups (Female and Male) the the incidence rate of colon cancer
-increases with age. The oldest age group reports the highest incidence rates 
-while the youngest age group reports stable, around the zero, rates.
-Furthermore, the trend over the calendar years is upward, meaning that the 
-incidence rate increases over time especially among the middle-aged groups and 
-older individuals. In contrast younger groups shows very little or no change 
-across the years. 
-Overall, the patterns for males and females are similar, with upward trend over
-time. Also colon cancer incidence rises over time in the older age groups.
+Across both groups (Female and Male) the incidence rate of colon cancer
+increases with age. The oldest age group reports the highest incidence
+rates while the youngest age group reports stable, around the zero,
+rates. Furthermore, the trend over the calendar years is upward, meaning
+that the incidence rate increases over time especially among the
+middle-aged groups and older individuals. In contrast younger groups
+shows very little or no change across the years. Overall, the patterns
+for males and females are similar, with upward trend over time. Also
+colon cancer incidence rises over time in the older age groups.
 
+## 10
 
-## 10 
+**Task:**
 
-**Task description:**
-
-Since colon cancer is more common in older age groups, and the age dis-
-tribution has changed in the population, we want to also adjust for age.
-Again fit a suitable Poisson model, but this time with the age-specific
-number of cases as the dependent variable, and age-specific population
-size as offset, and calendar year, age group and sex as independent vari-
-ables. Make sure to not assume that the pattern across calendar year is
-the same for males and females and across age groups. Based on the model
-output from above, what is the incidence rate in 1970 in age group 70-74
-among males and females? Based on the model output from above, what
-is the incidence rate in 2020 in age group 70-74 among males and females?
+Since colon cancer is more common in older age groups, and the age
+distribution has changed in the population, we want to also adjust for
+age. Again fit a suitable Poisson model, but this time with the
+age-specific number of cases as the dependent variable, and age-specific
+population size as offset, and calendar year, age group and sex as
+independent variables. Make sure to not assume that the pattern across
+calendar year is the same for males and females and across age groups.
+Based on the model output from above, what is the incidence rate in 1970
+in age group 70-74 among males and females? Based on the model output
+from above, what is the incidence rate in 2020 in age group 70-74 among
+males and females?
 
 **Answer:**
 
-Suitable model for this task is: 
+A suitable model for this task is:
 
-\[
+$$
 \log(\lambda_{i,a,s}) = \log(\text{population}_{i,a,s}) + \beta_0 + \beta_1 \cdot \text{year}_i + \beta_2 \cdot \text{sex}_s + \beta_3 \cdot \text{agegroup}_a + \text{(two-way interactions)} + \text{(three-way interactions)}.
-\]
+$$
+
+where $\beta_0$ is the intercept, i.e. the predicted log-IR for the
+reference group, $\beta_1$ the year variable, $\beta_2$ the sex variable
+and $\beta_3$ the age group variable.
 
 **Description of the variables in the model:**
 
-- `n`: age–sex–year specific number of colon cancer cases (dependent variable).
-- `n_pop`: population size in the same age–sex–year group, also `log(n_pop)` as an offset.
-- The formula `year * sex * agegroup` includes all main effects, all two-way interactions and the three-way interaction, allowing each sex–age group to have its own time trend.
-
+-   `n`: age–sex–year specific number of colon cancer cases (dependent
+    variable).
+-   `n_pop`: population size in the same age–sex–year group, also
+    `log(n_pop)` as an offset.
+-   The formula `year * sex * agegroup` includes all main effects, all
+    two-way interactions and the three-way interaction, allowing each
+    sex–age group to have its own time trend.
 
 ```{r}
 #Fit Poisson model with age-specific counts
@@ -622,12 +624,6 @@ summary(poisson_age_model)
 
 ```
 
-
-
-
-
-
-
 ```{r}
 
 #Creating new data for predictions for age group 70-74 in 1970 and 2020 from
@@ -638,7 +634,7 @@ newdata_70_74 <- data.frame(
                     levels = levels(merged_df$sex)),
   agegroup = factor(rep("70-74", 4),
                     levels = levels(merged_df$agegroup)),
-   #Set n_pop to 1 so predicted value is a rate.
+  #Set n_pop to 1 so predicted value is a rate.
   n_pop    = 1 
 )
 
@@ -654,26 +650,26 @@ newdata_70_74$IR_per_1000 <- newdata_70_74$IR * 1000
 
 newdata_70_74
 
-
-
-
-
 ```
 
 The results show that:
 
-- Incidence rates are higher for males than for females in both years.
-- Incidence rates are higher in 2020 than in 1970 for both sexes.
+-   Incidence rates are higher for males than for females in both years.
+-   Incidence rates are higher in 2020 than in 1970 for both sexes.
 
 ## 11
 
-**Task:** If you have not already done so, refit the model above using splines for the effect of calendar year and age group (use the mid point of each age group), and also make sure to not assume that the pattern across calendar year is the same across age and sex. Create graphs showing the incidence rate across calendar time for males and females at ages 52, 72 and 87. Compare with the observed values for age group 50-54, 70-74 and 85-89 from previously.
- 
-**Answer:** 
+**Task:** If you have not already done so, refit the model above using
+splines for the effect of calendar year and age group (use the mid point
+of each age group), and also make sure to not assume that the pattern
+across calendar year is the same across age and sex. Create graphs
+showing the incidence rate across calendar time for males and females at
+ages 52, 72 and 87. Compare with the observed values for age group
+50-54, 70-74 and 85-89 from previously.
+
+**Answer:**
+
 ```{r}
-
-
-
 if (!"age_mid" %in% names(merged_df)) {
   merged_df <- merged_df %>%
     mutate(
@@ -756,41 +752,47 @@ ggplot() +
     x = "Year", y = "Incidence rate per 1,000"
   ) +
   theme_minimal()
-
-
 ```
 
- We fitted a GAM model of the form
- 
+We fitted a GAM model of the form
+
 $$
 log(\lambda) = log(n_{\text{pop}}) + \beta_0 + \beta_1 \text{sex} + s(\text{age(mid)}, \text{by = sex}) + s(\text{year}, \text{by = sex}) + ti(\text{year}, \text{age(mid)}, \text{by = sex})
 $$
 
 which allows age effects, calendar-year trends, and their interactions
-to differ between males and females.  
-The model shows excellent fit (deviance explained 99.4\%).
+to differ between males and females. The model shows excellent fit
+(deviance explained 99.4%).
 
 We predicted incidence rates at ages 52, 72, and 87 and compared them
 with the observed incidence in the age groups 50--54, 70--74, and
 85--89. Model-based curves closely follow the empirical data.
 
-Age 52 Incidence is low ($\approx$0.2--0.3 per 1000) and nearly
-constant over time for both sexes.  
-Age 72. Incidence increases slowly until the mid-1990s,
-stabilises, and shows a slight decline after 2010.  
-Age 87. Incidence displays a stronger nonlinear pattern: an
-increase until the 1990s, a dip around 2000--2010, and an increase again
-in recent years.
+Age 52: Incidence is low ( $\approx$ 0.2--0.3 per 1000) and nearly
+constant over time for both sexes.\
+Age 72: Incidence increases slowly until the mid-1990s, stabilizes, and
+shows a slight decline after 2010.\
+Age 87: Incidence displays a stronger nonlinear pattern: an increase
+until the 1990s, a dip around 2000--2010, and an increase again in
+recent years.
 
 Across all ages, males have consistently higher incidence rates than
-females, although the temporal patterns are similar.  
+females, although the temporal patterns are similar.\
 Overall, the spline-based GAM reproduces the observed trends well and
 appropriately captures the nonlinear effects of age, calendar year, and
 their interaction.
 
 ## 12
 
-**Task:**  If we want to compare incidence rates between calendar years, we typically want to have a summary statistics over all age groups. However, we have to take into account differences in the age distribution between calendar years if we don’t want any differences to be due to the population getting older. Age-standardized rates allow us to do this. Estimate direct age standardised incidence rate by year and sex based on the sex-specific age distribution in 2022. Create a graph of age-standardized incidence rates and compare with non-age-standardized graph created previously.
+**Task:** If we want to compare incidence rates between calendar years,
+we typically want to have a summary statistics over all age groups.
+However, we have to take into account differences in the age
+distribution between calendar years if we don’t want any differences to
+be due to the population getting older. Age-standardized rates allow us
+to do this. Estimate direct age standardised incidence rate by year and
+sex based on the sex-specific age distribution in 2022. Create a graph
+of age-standardized incidence rates and compare with
+non-age-standardized graph created previously.
 
 ```{r}
 # Get sex-specific 2022 age distribution (weights)
@@ -853,24 +855,39 @@ ggplot() +
 
 ```
 
-The comparison of incidence rates (IRs) shows that the crude IRs (lighter lines) increase steeply due to the ageing of the Swedish population. In contrast, the age-standardized IRs (thicker lines), which represent the true underlying risk, show a slower increase.
+The comparison of incidence rates (IRs) shows that the crude IRs
+(lighter lines) increase steeply due to the ageing of the Swedish
+population. In contrast, the age-standardized IRs (thicker lines), which
+represent the true underlying risk, show a slower increase.
 
-Crucially, while crude IRs sometimes suggest similar risks between sexes in the early years, the standardized IRs demonstrate that Male IR is consistently higher than Female IR across the entire period, confirming that males have a higher age-specific risk.
+Crucially, while crude IRs sometimes suggest similar risks between sexes
+in the early years, the standardized IRs demonstrate that Male IR is
+consistently higher than Female IR across the entire period, confirming
+that males have a higher age-specific risk.
+
+In general, the non-age-standardized (crude) rates show both the true change in risk, i.e. the incidence rate, and the change in the population's age structure (older people mean higher risk). In our case, we use the 2022 age distribution, so the standardized rates minimize the aging effect and show only the absolute change in incidence risk as if the population's age remained constant (at the 2022 level) throughout the entire period.
+
 
 ## 13
-**Task:** It is also possible to get age-standardised rates based on the regression model including age, year and sex. Instead of standardising the observed rates, standardisation is applied to the predicted rates from the model. Do so, again using the sex-specific age distribution on 2022. Compare these standardised rates to the direct standardised rates from above.
 
+**Task:** It is also possible to get age-standardised rates based on the
+regression model including age, year and sex. Instead of standardising
+the observed rates, standardisation is applied to the predicted rates
+from the model. Do so, again using the sex-specific age distribution on
+2022. Compare these standardised rates to the direct standardised rates
+from above.
 
 **Answer:**
 
-The indirect standardization method uses the predicted age-specific incidence rates ($\text{Predicted IR}_{a,y,s}$) derived from the Poisson regression model (fitted in Task 10) and applies the same 2022 sex-specific age weights ($\text{Weight}_{a,s}^{\text{2022}}$) used in Task 12.
+The indirect standardization method uses the predicted age-specific
+incidence rates ($\text{Predicted IR}_{a,y,s}$) derived from the Poisson
+regression model (fitted in Task 10) and applies the same 2022
+sex-specific age weights ($\text{Weight}_{a,s}^{\text{2022}}$) used in
+Task 12.
 
-The model-based standardized incidence rate is calculated as:
-$$
+The model-based standardized incidence rate is calculated as: $$
 \text{Model-based Standardized IR}_{\text{y,s}} = \sum_{a} \left(\text{Predicted IR}_{a,y,s}^{\text{model}} \times \text{Weight}_{a,s}^{\text{2022}} \right)
 $$
-
-
 
 ```{r}
 
@@ -924,8 +941,7 @@ new_pred <- merge(
 
 
 # Compute age-standardised rates (ASR)
-# ASR = Σ_a  (predicted rate × 2022 weight)
-
+# ASR = Sum_a  (predicted rate × 2022 weight)
 
 ASR <- aggregate(
   IR * weight ~ year + sex,
@@ -943,11 +959,39 @@ print(ASR)
 
 **Interpretation:**
 
-The model-based ASR increases from 1970 to 2020 in both sexes, even after age adjustment, indicating a true temporal rise in colon cancer incidence.
+The model-based ASR increases from 1970 to 2020 in both sexes, even
+after age adjustment, indicating a true temporal rise in colon cancer
+incidence.
 
-Males consistently have slightly higher age-standardised rates than females.
+Males consistently have slightly higher age-standardised rates than
+females.
 
-Compared to the directly standardised rates, the model-based ASR are smoother and less affected by random variation, because the regression model removes year-to-year noise.
+Compared to the directly standardised rates, the model-based ASR are
+smoother and less affected by random variation, because the regression
+model removes year-to-year noise.
 
-Both approaches show the same overall pattern: rising incidence over time and slightly higher rates in males.
+Both approaches show the same overall pattern: rising incidence over
+time and slightly higher rates in males.
 
+## 14
+
+**Task:** What do you conclude regarding the pattern of colon cancer
+incidence across calendar years?
+
+**Answer:**
+
+Overall, we can conclude that the incidence of colon cancer in Sweden
+has risen steadily from 1970 to 2020 for both sexes. The smoothed plot
+of the yearly incidence rates  (Task 6) shows an almost doubling of the
+rate over the 50‑year span with an upward trend. The Poisson regression
+model (Task 7) quantifies this rise as an average $1.1%$ increase per
+calendar year (β₁ = 0.01094).
+
+Even after adjusting for the ageing population (Task 12), the
+age‑standardised incidence curves still rise, less sharply than the
+crude rates, verifying that the trend reflects a valid increase.
+Throughout the period males consistently have higher rates than females,
+but the general pattern is similar for both sexes.
+
+Hence, our data indicate a nationwide increase in colon cancer incidence
+over the last five decades affecting equally men and women.
