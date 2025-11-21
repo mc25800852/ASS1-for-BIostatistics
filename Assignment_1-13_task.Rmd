@@ -186,6 +186,8 @@ In our file population.tsv we have the following variables:
 
 \end{itemize}
 
+These graphs show that the older age groups tend to have a smaller population, which is expected. We can also see population trends between men and women are similar except for the oldest age groups where there seem to be more women than men, again this is expected. The wave like shapes come from the fact that as the years progress groups of the population transition up to later age groups. We decided to modify the y-axis to “in thousands” because the values are very large otherwise and dont make for a readable graph.
+
 ## 4
 
 **Task:** Merge the information on number of cases and the number of
@@ -209,6 +211,9 @@ cases_sum <- aggregate(n ~ year + sex, data = merged_df, sum)
 population_sum <- aggregate(n_pop ~ year + sex, data = merged_df, sum)
 summary_df <- merge(cases_sum, population_sum, by = c("year", "sex"))
 ```
+
+
+The population file does in fact include the same age groups and calendar years as the file including the number of cases. 
 
 ## 5
 
@@ -448,15 +453,20 @@ Similarly, the incidence rate for the year 2020 is calculated, with the
 only change being that the term $\beta_1 \cdot 1970$ has been replaced
 with $\beta_1 \cdot 2020$.
 
-A summary table of the model-based incidence rates (per 1,000
-person-years) is presented below:
+A summary table of the model-based incidence rates is presented below:
 
-| Year | Sex    | Incidence Rate (per 1,000) |
-|------|--------|----------------------------|
-| 1970 | Female | 0.29                       |
-| 1970 | Male   | 0.27                       |
-| 2020 | Female | 0.52                       |
-| 2020 | Male   | 0.49                       |
+
+
+| Year | Sex    | Incidence Rate (per 1,000) | Incidence Rate          |
+| ---- | ------ | -------------------------- | ----------------------- |
+| 1970 | Female | 0.29                       | 0.00029                 |
+| 1970 | Male   | 0.27                       | 0.00027                 |
+| 2020 | Female | 0.52                       | 0.00052                 |
+| 2020 | Male   | 0.49                       | 0.00049                 |
+
+
+
+
 
 These results indicate that the model predicts a steady increase in
 incidence over time for both sexes between 1970 and 2020.
@@ -508,6 +518,26 @@ group, and apply smoothers, what can you conclude?
 **Answer:**
 
 ```{r}
+#One combined graph of incidence rates over time. The dashed line is for males
+#and the continuous line is for females.
+
+ggplot(merged_df, aes(x = year,y = Incidencerate_per1000, color = agegroup,
+                      linetype = sex)) + geom_point(alpha = 0.3) +
+  geom_smooth(se = FALSE, method = "loess", linewidth = 0.9) + theme_minimal() + 
+  labs(
+title = "Incidence Rates Over Calendar Year by Sex and Age Group",
+x = "Calendar Year",
+y = "Incidence Rate (per 1,000 person-years)",
+color = "Age Group",
+linetype = "Sex"
+)
+```
+
+A combined graph with both females and males is initially created. However for better interpretation, it is decided to include two additional graphs per sex group, which helps the reader to perceive and compare the trends more easily.
+
+
+
+```{r}
 #Two separate incidence rate graphs. First one only for females and the second
 #one for males.
 
@@ -541,22 +571,7 @@ y = "Incidence Rate (per 1,000 person-years)",
 color = "Age Group")
 ```
 
-```{r}
-#One combined graph of incidence rates over time. The dashed line is for males
-#and the continuous line is for females.
 
-ggplot(merged_df, aes(x = year,y = Incidencerate_per1000, color = agegroup,
-                      linetype = sex)) + geom_point(alpha = 0.3) +
-  geom_smooth(se = FALSE, method = "loess", linewidth = 0.9) + theme_minimal() + 
-  labs(
-title = "Incidence Rates Over Calendar Year by Sex and Age Group",
-x = "Calendar Year",
-y = "Incidence Rate (per 1,000 person-years)",
-color = "Age Group",
-linetype = "Sex"
-)
-
-```
 
 **Interpretation of the results:**
 
@@ -680,12 +695,6 @@ if (!"age_mid" %in% names(merged_df)) {
 }
 
 
-if (!"Incidencerate" %in% names(merged_df)) {
-  merged_df <- merged_df %>%
-    mutate(Incidencerate = n / n_pop,
-           Incidencerate_per1000 = Incidencerate * 1000)
-}
-
 merged_df$sex <- factor(merged_df$sex)
 
 # Fit GAM: year, age spline
@@ -737,12 +746,12 @@ obs_df <- merged_df %>%
 ggplot() +
   geom_line(
     data = newpred,
-    aes(x = year, y = pred_rate_per1000, color = age_label, linetype = sex),
+    aes(x = year, y = pred_rate_per1000, color = age_label),
     linewidth = 1
   ) +
   geom_point(
     data = obs_df,
-    aes(x = year, y = obs_rate_per1000, color = age_label, shape = sex),
+    aes(x = year, y = obs_rate_per1000, color = age_label),
     linewidth = 2
   ) +
   facet_wrap(~ sex, ncol = 1) +
@@ -763,6 +772,8 @@ $$
 which allows age effects, calendar-year trends, and their interactions
 to differ between males and females. The model shows excellent fit
 (deviance explained 99.4%).
+
+Compared to the basic Poisson model in Task 7, which assumed a constant log-linear model trend, and the interaction model in Task 10, which allowed for slope differences but constrained them to be linear, the GAM provides superior flexibility. The GAM successfully captures non-linear patterns, which explain almost all the variability in the aggregated data.
 
 We predicted incidence rates at ages 52, 72, and 87 and compared them
 with the observed incidence in the age groups 50--54, 70--74, and
@@ -885,9 +896,12 @@ regression model (fitted in Task 10) and applies the same 2022
 sex-specific age weights ($\text{Weight}_{a,s}^{\text{2022}}$) used in
 Task 12.
 
-The model-based standardized incidence rate is calculated as: $$
+The model-based standardized incidence rate is calculated as:
+\[
 \text{Model-based Standardized IR}_{\text{y,s}} = \sum_{a} \left(\text{Predicted IR}_{a,y,s}^{\text{model}} \times \text{Weight}_{a,s}^{\text{2022}} \right)
-$$
+\]
+
+
 
 ```{r}
 
@@ -957,6 +971,11 @@ print(ASR)
 
 ```
 
+
+
+
+
+
 **Interpretation:**
 
 The model-based ASR increases from 1970 to 2020 in both sexes, even
@@ -972,6 +991,8 @@ model removes year-to-year noise.
 
 Both approaches show the same overall pattern: rising incidence over
 time and slightly higher rates in males.
+
+
 
 ## 14
 
