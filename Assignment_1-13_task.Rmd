@@ -4,6 +4,7 @@ author: "Group 3: William Fleury Dziuk, Galya Gadzhalova, Chen Ma, Afroditi-Ilia
   Zotou"
 date: "`r Sys.Date()`"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 editor_options:
@@ -84,7 +85,7 @@ ggplot(cases, aes(x = agegroup, y = n, fill = sex)) +
     
 ```
 
-In our the file cases.tsv we have the following variables:
+In our file 'cases.tsv' we have the following variables:
 
 \begin{itemize}
 \item Age group: Intervals of 5‑years (0–4, 5–9, …, 85–89).
@@ -124,6 +125,17 @@ ggplot(cases_by_year, aes(x = year, y = n, color = sex)) +
 
 ```
 
+The graph shows an overall increasing long-term trend in the incidence
+of colon cancer in Sweden. There is a steady rise in the absolute number
+of colon cancer cases for both males and females over the entire 50-year
+period. Cases for both sexes started around 1.000–1.200 in 1970 and have
+more than doubled to 2.600–2.700. As for the rate of increase, it was
+gradual in the period between 1970-2000, but from the 2000 and onward
+the rise is significantly faster. Throughout the 50-year period the
+number of cases in females has remained slightly higher compared to
+males, while the gap between the two lines narrows at the end of our
+examined period.
+
 ## 3
 
 **Task:** Read in the file on number of persons at risk (the file
@@ -157,6 +169,20 @@ population$year <- as.numeric(population$year)
 population$n_pop <- as.numeric(population$n_pop)
 ```
 
+In our file 'population.tsv' we have the following variables:
+
+\begin{itemize} 
+\item Age group: Intervals of 5‑years (0–4, 5–9, …, 85–89).
+
+\item Sex: Male and female categories.
+
+\item Year: Numeric variable of the calendar year of the observation.
+
+\item Number of persons at risk ($n_pop$): The number of individuals in each age group, sex, and year. This represents the population at risk and will be used as the denominator for rate calculations. 
+
+\end{itemize}
+
+
 ```{r}
 #Create graphs that illustrate the population size over age groups 
 #and calendar year simultaneously, separately by males and females.
@@ -172,21 +198,14 @@ ggplot(population, aes(x = year, y = n_pop, color = agegroup)) +
     y = "Population (In Thousands)") +
   theme_minimal()
 ```
-
-In our file population.tsv we have the following variables:
-
-\begin{itemize} 
-\item Age group: Intervals of 5‑years (0–4, 5–9, …, 85–89).
-
-\item Sex: Male and female categories.
-
-\item Year: Numeric variable of the calendar year of the observation.
-
-\item Number of persons at risk ($n_pop$): The number of individuals in each age group, sex, and year. This represents the population at risk and will be used as the denominator for rate calculations. 
-
-\end{itemize}
-
-These graphs show that the older age groups tend to have a smaller population, which is expected. We can also see population trends between men and women are similar except for the oldest age groups where there seem to be more women than men, again this is expected. The wave like shapes come from the fact that as the years progress groups of the population transition up to later age groups. We decided to modify the y-axis to “in thousands” because the values are very large otherwise and dont make for a readable graph.
+These graphs show that the older age groups tend to have a smaller
+population, which is expected. We can also see that population trends
+between men and women are similar except for the oldest age groups where
+there seem to be more women than men, yet again this is expected. The
+wave like shapes come from the fact that as the years progress, groups
+of the population transition up to later age groups. We decided to
+modify the y-axis to “in thousands” because the values are very large
+otherwise and make it difficult to read the graph.
 
 ## 4
 
@@ -212,8 +231,8 @@ population_sum <- aggregate(n_pop ~ year + sex, data = merged_df, sum)
 summary_df <- merge(cases_sum, population_sum, by = c("year", "sex"))
 ```
 
-
-The population file does in fact include the same age groups and calendar years as the file including the number of cases. 
+The population file does in fact include the same age groups and
+calendar years as the file including the number of cases.
 
 ## 5
 
@@ -224,11 +243,14 @@ number of cases per year and sex. Describe shortly what an incidence
 rate is, and your thoughts on if this is an appropriate way of
 calculating an incidence rate.
 
-**Answer:** We define Incidence rate (IR) as
+**Answer:** 
+
+We define Incidence rate (IR) as
 $\text{Incidence Rate} = \frac{\text{Number of new colon cancer cases}}{\text{Population size}}$
 
 We also calculated the rate per 1.000 person-years to easier interpret
-the results. We were motivated to so from similar questions at the recommended exercises. 
+the results. We were motivated to so from similar questions at the
+recommended exercises.
 
 $\text{Incidence Rate per }1.000=1.000 \times \frac{\text{Number of new colon cancer cases}}{\text{Population size}}$
 
@@ -271,7 +293,6 @@ dramatically change over the year. Hence, we can conclude that this is a
 valid way of calculating an incidence rate where detailed follow‑up is
 not available.
 
-
 ## 6
 
 **Task:** Plot the incidence rate of colon cancer over calendar time and
@@ -303,15 +324,12 @@ became more common and accessible over the decades. Additionally, the
 Incidence rates are consistently higher for males meaning that for the
 same age period, men have a higher chance of being diagnosed with colon
 cancer than females. This means that the trends are similar for both
-sexes exhibit but at different absolute levels. As for the LOESS
-smoother, the curved line, it clearly shows a long-term upward trend by
-ignoring minor fluctuations.
+sexes but at different absolute levels. As for the LOESS smoother, the
+curved line, it clearly shows a long-term upward trend by ignoring minor
+fluctuations.
 
 Confidence bands, as shown by the shaded areas, are relatively narrow,
-indicating a statistically important trend. In a more practical
-perspective, we can interpret that there have been major improvements in
-screening and diagnosing colon cancer over the past decades and
-awareness has been raised encouraging testing especially for men.
+indicating a statistically important trend.
 
 ## 7
 
@@ -363,8 +381,6 @@ $$
 
 where $\lambda$ is the expected number of colon cancer cases and sex is
 coded as 1 for males and 0 for females.
-
-*Interpretation of estimates:*
 
 The value $\beta_0 = -29.69$ represents the baseline log incidence rate
 for females in year 0.
@@ -421,7 +437,7 @@ $$
 IR_{\text{female, 1970}} = e^{-8.142} = 0.00029
 $$
 
-Per 1,000:
+Per 1.000:
 
 $$
 IR_{\text{female, 1970}} \times 1000 \approx 0.29
@@ -443,7 +459,7 @@ $$
 IR_{\text{male, 1970}} = e^{-8.198} = 0.000274
 $$
 
-Per 1,000:
+Per 1.000:
 
 $$
 IR_{\text{male, 1970}} \times 1000 \approx 0.274
@@ -455,18 +471,12 @@ with $\beta_1 \cdot 2020$.
 
 A summary table of the model-based incidence rates is presented below:
 
-
-
-| Year | Sex    | Incidence Rate (per 1,000) | Incidence Rate          |
-| ---- | ------ | -------------------------- | ----------------------- |
-| 1970 | Female | 0.29                       | 0.00029                 |
-| 1970 | Male   | 0.27                       | 0.00027                 |
-| 2020 | Female | 0.52                       | 0.00052                 |
-| 2020 | Male   | 0.49                       | 0.00049                 |
-
-
-
-
+| Year | Sex    | Incidence Rate (per 1,000) | Incidence Rate |
+|------|--------|----------------------------|----------------|
+| 1970 | Female | 0.29                       | 0.00029        |
+| 1970 | Male   | 0.27                       | 0.00027        |
+| 2020 | Female | 0.52                       | 0.00052        |
+| 2020 | Male   | 0.49                       | 0.00049        |
 
 These results indicate that the model predicts a steady increase in
 incidence over time for both sexes between 1970 and 2020.
@@ -474,18 +484,18 @@ incidence over time for both sexes between 1970 and 2020.
 The following assumptions could be made based on the model:
 
 -   The coefficient for calendar year is $\beta_1 = 0.01094$. When it is
-    normalized, $e^{0.01094} \approx 1.011$, it could be concluded that
-    the incidence rate increases by about 1.1% per year. So the model
-    assumes a steady and constant yearly increase in incidence over
-    time.
+    normalized, $e^{0.01094} \approx 1.011$ and hence we can conclude
+    that the incidence rate increases by about 1.1% per year. So, the
+    model assumes a steady and constant yearly increase in incidence
+    over time.
 
 -   In the model the variable sex is a binary variable which takes
-    values 0 or 1. So we assume that the relative difference between
+    values 0 or 1. So, we assume that the relative difference between
     males and females is constant across the person years.
 
-Intrepretation:
+*Intrepretation:*
 
-The coefficient infront the sex variable is:
+The coefficient $\beta_2$ for the sex variable is:
 
 $$
 \beta_2 = -0.05592
@@ -506,7 +516,7 @@ $$
 0.9456 - 1 = -0.0544
 $$
 
-Which means that males have about 5.4% lower incidence than females.
+which means that males have about 5.4% lower incidence than females.
 
 ## 9
 
@@ -533,9 +543,10 @@ linetype = "Sex"
 )
 ```
 
-A combined graph with both females and males is initially created. However for better interpretation, it is decided to include two additional graphs per sex group, which helps the reader to perceive and compare the trends more easily.
-
-
+A combined graph with both females and males is initially created.
+However for better interpretation, it is decided to include two
+additional graphs per sex group, which helps the reader to perceive and
+compare the trends more easily.
 
 ```{r}
 #Two separate incidence rate graphs. First one only for females and the second
@@ -571,19 +582,17 @@ y = "Incidence Rate (per 1,000 person-years)",
 color = "Age Group")
 ```
 
-
-
-**Interpretation of the results:**
+*Interpretation of the results:*
 
 Across both groups (Female and Male) the incidence rate of colon cancer
 increases with age. The oldest age group reports the highest incidence
-rates while the youngest age group reports stable, around the zero,
-rates. Furthermore, the trend over the calendar years is upward, meaning
-that the incidence rate increases over time especially among the
-middle-aged groups and older individuals. In contrast younger groups
-shows very little or no change across the years. Overall, the patterns
-for males and females are similar, with upward trend over time. Also
-colon cancer incidence rises over time in the older age groups.
+rates while the youngest age group reports stable, around zero, rates.
+Furthermore, the trend over the calendar years is upward, meaning that
+the incidence rate increases over time especially among the middle-aged
+groups and older individuals. In contrast younger groups show very
+little or no change across the years. Overall, the patterns for males
+and females are similar, with upward trend over time. Also colon cancer
+incidence rises over time in the older age groups.
 
 ## 10
 
@@ -773,7 +782,12 @@ which allows age effects, calendar-year trends, and their interactions
 to differ between males and females. The model shows excellent fit
 (deviance explained 99.4%).
 
-Compared to the basic Poisson model in Task 7, which assumed a constant log-linear model trend, and the interaction model in Task 10, which allowed for slope differences but constrained them to be linear, the GAM provides superior flexibility. The GAM successfully captures non-linear patterns, which explain almost all the variability in the aggregated data.
+Compared to the basic Poisson model in Task 7, which assumed a constant
+log-linear model trend, and the interaction model in Task 10, which
+allowed for slope differences but constrained them to be linear, the GAM
+provides superior flexibility. The GAM successfully captures non-linear
+patterns, which explain almost all the variability in the aggregated
+data.
 
 We predicted incidence rates at ages 52, 72, and 87 and compared them
 with the observed incidence in the age groups 50--54, 70--74, and
@@ -876,8 +890,13 @@ in the early years, the standardized IRs demonstrate that Male IR is
 consistently higher than Female IR across the entire period, confirming
 that males have a higher age-specific risk.
 
-In general, the non-age-standardized (crude) rates show both the true change in risk, i.e. the incidence rate, and the change in the population's age structure (older people mean higher risk). In our case, we use the 2022 age distribution, so the standardized rates minimize the aging effect and show only the absolute change in incidence risk as if the population's age remained constant (at the 2022 level) throughout the entire period.
-
+In general, the non-age-standardized (crude) rates show both the true
+change in risk, i.e. the incidence rate, and the change in the
+population's age structure (older people mean higher risk). In our case,
+we use the 2022 age distribution, so the standardized rates minimize the
+aging effect and show only the absolute change in incidence risk as if
+the population's age remained constant (at the 2022 level) throughout
+the entire period.
 
 ## 13
 
@@ -896,12 +915,9 @@ regression model (fitted in Task 10) and applies the same 2022
 sex-specific age weights ($\text{Weight}_{a,s}^{\text{2022}}$) used in
 Task 12.
 
-The model-based standardized incidence rate is calculated as:
-\[
+The model-based standardized incidence rate is calculated as: $$
 \text{Model-based Standardized IR}_{\text{y,s}} = \sum_{a} \left(\text{Predicted IR}_{a,y,s}^{\text{model}} \times \text{Weight}_{a,s}^{\text{2022}} \right)
-\]
-
-
+$$
 
 ```{r}
 
@@ -971,12 +987,7 @@ print(ASR)
 
 ```
 
-
-
-
-
-
-**Interpretation:**
+*Interpretation***:**
 
 The model-based ASR increases from 1970 to 2020 in both sexes, even
 after age adjustment, indicating a true temporal rise in colon cancer
@@ -992,8 +1003,6 @@ model removes year-to-year noise.
 Both approaches show the same overall pattern: rising incidence over
 time and slightly higher rates in males.
 
-
-
 ## 14
 
 **Task:** What do you conclude regarding the pattern of colon cancer
@@ -1003,16 +1012,20 @@ incidence across calendar years?
 
 Overall, we can conclude that the incidence of colon cancer in Sweden
 has risen steadily from 1970 to 2020 for both sexes. The smoothed plot
-of the yearly incidence rates  (Task 6) shows an almost doubling of the
+of the yearly incidence rates (Task 6) shows an almost doubling of the
 rate over the 50‑year span with an upward trend. The Poisson regression
 model (Task 7) quantifies this rise as an average $1.1%$ increase per
-calendar year (β₁ = 0.01094).
+calendar year ($\beta_1=0.01094$).
 
 Even after adjusting for the ageing population (Task 12), the
 age‑standardised incidence curves still rise, less sharply than the
-crude rates, verifying that the trend reflects a valid increase.
-Throughout the period males consistently have higher rates than females,
-but the general pattern is similar for both sexes.
+crude rates but still verifying that the trend reflects a valid
+increase. Throughout the period males consistently have higher rates
+than females, but the general pattern is similar for both sexes.
 
 Hence, our data indicate a nationwide increase in colon cancer incidence
-over the last five decades affecting equally men and women.
+over the last five decades affecting equally men and women. In a more
+practical perspective, we can interpret that there have been major
+improvements in screening and diagnosing colon cancer over the past
+decades and awareness has been raised encouraging testing especially for
+men.
