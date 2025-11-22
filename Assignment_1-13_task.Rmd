@@ -69,6 +69,19 @@ cases$year <- as.numeric(cases$year)
 cases$n <- as.numeric(cases$n)
 ```
 
+In our file 'cases.tsv' we have the following variables:
+
+\begin{itemize}
+\item Age group: Intervals of 5‑years (0–4, 5–9, …, 85–89).
+
+\item Sex: Male and female categories.
+
+\item Year: Numeric variable of the calendar year of the observation. 
+
+\item Number of cases (n): The number of new colon cancer cases in each age group, sex, and year. This is our dependent variable of interest.
+
+\end{itemize}
+
 ```{r}
  #Graph showing the number of cases by age group and sex.
 ggplot(cases, aes(x = agegroup, y = n, fill = sex)) +
@@ -82,21 +95,10 @@ ggplot(cases, aes(x = agegroup, y = n, fill = sex)) +
     y = "Number of Cases"
   ) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
-    
 ```
 
-In our file 'cases.tsv' we have the following variables:
+From the graph, we can conclude that the number of cases of colon cancer increases with age for both sexes. Even though there are reported cases in children and young adults of 0-29 years they are rare. A significant increase is shown for both sexes around the 50-54 age group and from that point it dramatically rises in the older age groups. For females, the highest number of cases is seen in the age group 75-79 while for males it is within the age group 80-84 years. This indicates a higher burden of cases in the oldest male populations. We can hence conclude that age is a determining factor in the absolute number of colon cancer cases in Sweden.
 
-\begin{itemize}
-\item Age group: Intervals of 5‑years (0–4, 5–9, …, 85–89).
-
-\item Sex: Male and female categories.
-
-\item Year: Numeric variable of the calendar year of the observation. 
-
-\item Number of cases (n): The number of new colon cancer cases in each age group, sex, and year. This is our dependent variable of interest.
-
-\end{itemize}
 
 ## 2
 
@@ -484,7 +486,7 @@ incidence over time for both sexes between 1970 and 2020.
 The following assumptions could be made based on the model:
 
 -   The coefficient for calendar year is $\beta_1 = 0.01094$. When it is
-    normalized, $e^{0.01094} \approx 1.011$ and hence we can conclude
+    normalized, $e^{0.01094} \approx 1.011$, we can conclude
     that the incidence rate increases by about 1.1% per year. So, the
     model assumes a steady and constant yearly increase in incidence
     over time.
@@ -498,7 +500,7 @@ The following assumptions could be made based on the model:
 The coefficient $\beta_2$ for the sex variable is:
 
 $$
-\beta_2 = -0.05592
+\beta_2 = -0.05592 
 $$
 
 Then, the value should be normalised, when the exponential is calculated
