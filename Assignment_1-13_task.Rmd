@@ -25,9 +25,8 @@ population in Sweden (age, year and sex on July 1st). The purpose is to
 describe the incidence of colon cancer in Sweden, especially the
 incidence pattern across calendar year.
 
-## Libraries
 
-```{r}
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
 library(ggplot2)
 library(RColorBrewer)
 library(scales)
@@ -44,7 +43,7 @@ Describe what you can conclude from the graph.
 
 **Answer:**
 
-```{r}
+```{r, echo = FALSE}
 #Read in Table
 cases <- read.table("cases-1.tsv")
 
@@ -53,7 +52,7 @@ colnames(cases) <- cases[1, ]
 cases <- cases[-1, ]
 ```
 
-```{r}
+```{r, echo = FALSE}
 #Clean Up Data Frame Column Types
 
 cases$agegroup <- factor(
@@ -82,7 +81,7 @@ In our file 'cases.tsv' we have the following variables:
 
 \end{itemize}
 
-```{r}
+```{r, echo = FALSE}
  #Graph showing the number of cases by age group and sex.
 ggplot(cases, aes(x = agegroup, y = n, fill = sex)) +
   geom_col() +
@@ -97,8 +96,16 @@ ggplot(cases, aes(x = agegroup, y = n, fill = sex)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
 ```
 
-From the graph, we can conclude that the number of cases of colon cancer increases with age for both sexes. Even though there are reported cases in children and young adults of 0-29 years they are rare. A significant increase is shown for both sexes around the 50-54 age group and from that point it dramatically rises in the older age groups. For females, the highest number of cases is seen in the age group 75-79 while for males it is within the age group 80-84 years. This indicates a higher burden of cases in the oldest male populations. We can hence conclude that age is a determining factor in the absolute number of colon cancer cases in Sweden.
-
+From the graph, we can conclude that the number of cases of colon cancer
+increases with age for both sexes. Even though there are reported cases
+in children and young adults of 0-29 years they are rare. A significant
+increase is shown for both sexes around the 50-54 age group and from
+that point it dramatically rises in the older age groups. For females,
+the highest number of cases is seen in the age group 75-79 while for
+males it is within the age group 80-84 years. This indicates a higher
+burden of cases in the oldest male populations. We can hence conclude
+that age is a determining factor in the absolute number of colon cancer
+cases in Sweden.
 
 ## 2
 
@@ -109,7 +116,7 @@ conclude from the graphs.
 
 **Answer:**
 
-```{r}
+```{r, echo = FALSE}
 #Obtain the total number of cases in each calendar year by males and females
 cases_by_year <- aggregate(n ~ year + sex, data = cases, sum)
 
@@ -147,7 +154,7 @@ calendar year simultaneously, separately by males and females.
 
 **Answer:**
 
-```{r}
+```{r, echo = FALSE}
 #Read in the table
 population <- read.table("population-1.tsv")
 
@@ -180,12 +187,11 @@ In our file 'population.tsv' we have the following variables:
 
 \item Year: Numeric variable of the calendar year of the observation.
 
-\item Number of persons at risk ($n_pop$): The number of individuals in each age group, sex, and year. This represents the population at risk and will be used as the denominator for rate calculations. 
+\item Number of persons at risk ($n_{pop}$): The number of individuals in each age group, sex, and year. This represents the population at risk and will be used as the denominator for rate calculations. 
 
 \end{itemize}
 
-
-```{r}
+```{r, echo = FALSE}
 #Create graphs that illustrate the population size over age groups 
 #and calendar year simultaneously, separately by males and females.
 
@@ -200,6 +206,7 @@ ggplot(population, aes(x = year, y = n_pop, color = agegroup)) +
     y = "Population (In Thousands)") +
   theme_minimal()
 ```
+
 These graphs show that the older age groups tend to have a smaller
 population, which is expected. We can also see that population trends
 between men and women are similar except for the oldest age groups where
@@ -245,18 +252,18 @@ number of cases per year and sex. Describe shortly what an incidence
 rate is, and your thoughts on if this is an appropriate way of
 calculating an incidence rate.
 
-**Answer:** 
+**Answer:**
 
-We define Incidence rate (IR) as
+We estimate the Incidence rate (IR) as
 $\text{Incidence Rate} = \frac{\text{Number of new colon cancer cases}}{\text{Population size}}$
 
-We also calculated the rate per 1.000 person-years to easier interpret
-the results. We were motivated to so from similar questions at the
-recommended exercises.
+We also calculated the rate per 1000 to easier interpret the results. We
+were motivated to so from similar questions at the recommended
+exercises.
 
-$\text{Incidence Rate per }1.000=1.000 \times \frac{\text{Number of new colon cancer cases}}{\text{Population size}}$
+$\text{Incidence Rate per }1000=1000 \times \frac{\text{Number of new colon cancer cases}}{\text{Population size}}$
 
-```{r}
+```{r, echo = FALSE}
 # Create incidence rates
 
 # Age incidence rates (agegroup × year × sex)
@@ -289,8 +296,10 @@ Theoretically, our definition used to calculate the Incidence rate
 matches Feldman's definition since both measure new cases relative to
 the population at risk. However, our definition is a simplified version
 of the formal one, since we assumed the population size to be an
-approximation for person-time In our case, the exact person-time is not
-available and we can also consider that the population does not
+approximation for person-time. Our dataset does not include person-time,
+we approximate the incidence rate by dividing the number of new colon
+cancer cases by the population size. In our case, the exact person-time
+is not available, but we can consider that the population does not
 dramatically change over the year. Hence, we can conclude that this is a
 valid way of calculating an incidence rate where detailed follow‑up is
 not available.
@@ -304,7 +313,7 @@ population size). Describe what you can conclude from the graphs
 
 **Answer:**
 
-```{r}
+```{r, echo = FALSE}
 # Plot the Incidence Rate 
 ggplot(summary_df, aes(x = year, y = Incidencerate_per1000, color = sex)) +
   geom_point(alpha = 0.5) +                    # show actual data points
@@ -314,7 +323,7 @@ ggplot(summary_df, aes(x = year, y = Incidencerate_per1000, color = sex)) +
   labs(
     title = "Incidence Rate of Colon Cancer Over Time",
     x = "Calendar Year",
-    y = "Incidence Rate (per 1.000 person-years)",
+    y = "Incidence Rate (per 1000 person-years)",
     color = "Sex"
   )
 ```
@@ -439,7 +448,7 @@ $$
 IR_{\text{female, 1970}} = e^{-8.142} = 0.00029
 $$
 
-Per 1.000:
+Per 1000:
 
 $$
 IR_{\text{female, 1970}} \times 1000 \approx 0.29
@@ -461,7 +470,7 @@ $$
 IR_{\text{male, 1970}} = e^{-8.198} = 0.000274
 $$
 
-Per 1.000:
+Per 1000:
 
 $$
 IR_{\text{male, 1970}} \times 1000 \approx 0.274
@@ -473,12 +482,12 @@ with $\beta_1 \cdot 2020$.
 
 A summary table of the model-based incidence rates is presented below:
 
-| Year | Sex    | Incidence Rate (per 1,000) | Incidence Rate |
-|------|--------|----------------------------|----------------|
-| 1970 | Female | 0.29                       | 0.00029        |
-| 1970 | Male   | 0.27                       | 0.00027        |
-| 2020 | Female | 0.52                       | 0.00052        |
-| 2020 | Male   | 0.49                       | 0.00049        |
+| Year | Sex    | Incidence Rate (per 1000) | Incidence Rate |
+|------|--------|---------------------------|----------------|
+| 1970 | Female | 0.29                      | 0.00029        |
+| 1970 | Male   | 0.27                      | 0.00027        |
+| 2020 | Female | 0.52                      | 0.00052        |
+| 2020 | Male   | 0.49                      | 0.00049        |
 
 These results indicate that the model predicts a steady increase in
 incidence over time for both sexes between 1970 and 2020.
@@ -486,10 +495,10 @@ incidence over time for both sexes between 1970 and 2020.
 The following assumptions could be made based on the model:
 
 -   The coefficient for calendar year is $\beta_1 = 0.01094$. When it is
-    normalized, $e^{0.01094} \approx 1.011$, we can conclude
-    that the incidence rate increases by about 1.1% per year. So, the
-    model assumes a steady and constant yearly increase in incidence
-    over time.
+    normalized, $e^{0.01094} \approx 1.011$, we can conclude that the
+    incidence rate increases by about 1.1% per year. So, the model
+    assumes a steady and constant yearly increase in incidence over
+    time.
 
 -   In the model the variable sex is a binary variable which takes
     values 0 or 1. So, we assume that the relative difference between
@@ -529,28 +538,7 @@ group, and apply smoothers, what can you conclude?
 
 **Answer:**
 
-```{r}
-#One combined graph of incidence rates over time. The dashed line is for males
-#and the continuous line is for females.
-
-ggplot(merged_df, aes(x = year,y = Incidencerate_per1000, color = agegroup,
-                      linetype = sex)) + geom_point(alpha = 0.3) +
-  geom_smooth(se = FALSE, method = "loess", linewidth = 0.9) + theme_minimal() + 
-  labs(
-title = "Incidence Rates Over Calendar Year by Sex and Age Group",
-x = "Calendar Year",
-y = "Incidence Rate (per 1,000 person-years)",
-color = "Age Group",
-linetype = "Sex"
-)
-```
-
-A combined graph with both females and males is initially created.
-However for better interpretation, it is decided to include two
-additional graphs per sex group, which helps the reader to perceive and
-compare the trends more easily.
-
-```{r}
+```{r, echo = FALSE}
 #Two separate incidence rate graphs. First one only for females and the second
 #one for males.
 
@@ -565,7 +553,7 @@ theme_minimal() +
 labs(
 title = "Incidence Rates Over Calendar Year by Age Group (Females)",
 x = "Calendar Year",
-y = "Incidence Rate (per 1,000 person-years)",
+y = "Incidence Rate (per 1000 person-years)",
 color = "Age Group"
 )
 
@@ -580,7 +568,7 @@ theme_minimal() +
 labs(
 title = "Incidence Rates Over Calendar Year by Age Group (Males)",
 x = "Calendar Year",
-y = "Incidence Rate (per 1,000 person-years)",
+y = "Incidence Rate (per 1000 person-years)",
 color = "Age Group")
 ```
 
@@ -671,7 +659,7 @@ newdata_70_74$IR <- predict(
   type = "response"
 )
 
-#Convert to incidence per 1,000 person-years
+#Convert to incidence per 1000 person-years
 newdata_70_74$IR_per_1000 <- newdata_70_74$IR * 1000
 
 newdata_70_74
@@ -769,7 +757,7 @@ ggplot() +
   scale_color_discrete(name = "Age Group") +
   labs(
     title = "Model-predicted incidence (ages 52,72,87) vs observed age groups",
-    x = "Year", y = "Incidence rate per 1,000"
+    x = "Year", y = "Incidence rate per 1000"
   ) +
   theme_minimal()
 ```
@@ -821,7 +809,7 @@ sex based on the sex-specific age distribution in 2022. Create a graph
 of age-standardized incidence rates and compare with
 non-age-standardized graph created previously.
 
-```{r}
+```{r, echo = FALSE}
 # Get sex-specific 2022 age distribution (weights)
 
 pop2022 <- merged_df %>%
@@ -871,10 +859,10 @@ ggplot() +
 
   theme_minimal() +
   labs(
-    title = "Age-standardized vs crude incidence rates (per 1,000)",
+    title = "Age-standardized vs crude incidence rates (per 1000)",
     subtitle = "Darker = standardized to 2022 age distribution; Lighter = crude",
     x = "Year",
-    y = "Incidence rate per 1,000",
+    y = "Incidence rate per 1000",
     color = "Sex"
   ) +
   scale_color_brewer(palette = "Dark2")
@@ -918,10 +906,11 @@ sex-specific age weights ($\text{Weight}_{a,s}^{\text{2022}}$) used in
 Task 12.
 
 The model-based standardized incidence rate is calculated as: $$
-\text{Model-based Standardized IR}_{\text{y,s}} = \sum_{a} \left(\text{Predicted IR}_{a,y,s}^{\text{model}} \times \text{Weight}_{a,s}^{\text{2022}} \right)
-$$
+\text{Model-based Standardized IR}_{\text{y,s}} = \sum_{a} \left(\text{Predicted IR}_{a,y,s}^{\text{model}} \times \text{Weight}_{a,s}^{\text{2022}} \right)$$
 
-```{r}
+
+
+```{r, echo = FALSE}
 
 # Fit Poisson regression with full interactions
 
