@@ -257,7 +257,7 @@ calculating an incidence rate.
 We estimate the Incidence rate (IR) as
 $\text{Incidence Rate} = \frac{\text{Number of new colon cancer cases}}{\text{Population size}}$
 
-We also calculated the rate per 1000 to easier interpret the results. We
+We also estimated the rate per 1000 to easier interpret the results. We
 were motivated to so from similar questions at the recommended
 exercises.
 
@@ -294,7 +294,7 @@ newly diagnosed with a disease during a specified period of time.
 
 Theoretically, our definition used to calculate the Incidence rate
 matches Feldman's definition since both measure new cases relative to
-the population at risk. However, our definition is a simplified version
+the population at risk. However, our estimation is a simplified version
 of the formal one, since we assumed the population size to be an
 approximation for person-time. Our dataset does not include person-time,
 we approximate the incidence rate by dividing the number of new colon
@@ -711,8 +711,9 @@ gam_model <- gam(
   data = merged_df,
   method = "REML"
 )
+```
 
-
+```{r, echo=FALSE}
 # Predict for ages 52,72,87 across all years
 pred_ages <- c(52, 72, 87)
 years     <- sort(unique(merged_df$year))
@@ -765,7 +766,7 @@ ggplot() +
   theme_minimal()
 ```
 
-We fitted a GAM model of the form
+On our first approach, we fitted a GAM model of the form:
 
 $$
 log(\lambda) = log(n_{\text{pop}}) + \beta_0 + \beta_1 \text{sex} + s(\text{age(mid)}, \text{by = sex}) + s(\text{year}, \text{by = sex}) + ti(\text{year}, \text{age(mid)}, \text{by = sex})
@@ -832,7 +833,9 @@ spline_model <- glm(
   offset = log(n_pop)
 )
 
+```
 
+```{r, echo=FALSE}
 
 # Predict for ages 52,72,87 across all years
 pred_ages <- c(52, 72, 87)
@@ -864,13 +867,11 @@ obs_df <- merged_df %>%
   mutate(obs_rate_per1000 = n / n_pop * 1000) %>%
   left_join(age_mid_map, by = "agegroup") %>%
   mutate(age_label = paste0("mid=", age_mid))
-
-
 ```
 
 
 
-```{r}
+```{r, echo=FALSE}
 
 # Plot: model (line) vs observed (points)
 ggplot() +
@@ -893,15 +894,17 @@ ggplot() +
   theme_minimal()
 ```
 
+In order to use regression splines, as suggested, we refitted the model using natural cubic splines ($\text{ns()}$) from the splines package within a Generalized Linear Model (GLM) framework. To account for non-linear trends and interactions as requested, we specified the model as follows:
 
+$$\begin{aligned}
+\log(\lambda) = & \log(n_{\text{pop}}) + \beta_0 + \beta_1 \text{sex} \\
+& + \text{ns}(\text{year}, \text{df}=5) + \text{ns}(\text{age}_{\text{mid}}, \text{df}=6) \\
+& + \text{sex}:\text{ns}(\text{year}, \text{df}=5) + \text{sex}:\text{ns}(\text{age}_{\text{mid}}, \text{df}=6) \\
+& + \text{sex}:\text{ns}(\text{year}, \text{df}=5):\text{ns}(\text{age}_{\text{mid}}, \text{df}=6)
+\end{aligned}$$
 
-We fitted a Poisson regression model using natural cubic splines (ns) via the splines package. To account for non-linear trends and interactions as requested, we specified the model as follows:
-
-n ~ sex + ns(year, df=5) + ns(age_mid, df=6) + sex:ns(year, df=5) + sex:ns(age_mid, df=6) + ns(year, df=5):age_mid
-
-We increased the degrees of freedom to 5 for year and 6 for age to capture the complex temporal and age-related patterns. The model resulted in a Residual Deviance of 3426.2 and an AIC of 12592, which is a substantial improvement over simpler parametric models and adequately approximates the trends observed in the GAM analysis.
-
-
+We increased the degrees of freedom to 5 for year and 6 for age to capture the complex temporal and age-related patterns observed in the GAM. 
+The model resulted in a Residual Deviance of 3426.2 and an AIC of 12592, which is a substantial improvement over simpler parametric models and adequately approximates the trends observed in the GAM analysis.
 
 
 ## 12
